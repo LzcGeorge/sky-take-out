@@ -21,5 +21,14 @@ public interface EmployeeMapper {
             "(#{name},#{username},#{password},#{phone},#{sex},#{idNumber}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})")
     void insert(Employee employee);
 
-    Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO); // 在 xml 中配置
+
+    @Update("update employee set status = #{status} where id = #{id}")
+    void updateStatus(Long id, Integer status);
+
+    void updateEmployee(Employee employee); // 动态 SQL
+
+    @Select("select * from employee where id = #{id}")
+    Employee getById(Long id);
 }

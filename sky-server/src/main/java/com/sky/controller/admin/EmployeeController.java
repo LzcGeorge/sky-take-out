@@ -85,4 +85,24 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
+    @PostMapping("/status/{status}")
+    public Result updateStatus(@PathVariable Integer status,Long id) {
+        log.info("修改id: {} 状态为 {}",id,status);
+        employeeService.updateStatus(id,status);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    public Result<Employee> getById(@PathVariable Long id) {
+        log.info("查询员工信息，id 为 {}",id);
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    @PutMapping
+    public Result updateInfo(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("修改用户信息");
+        employeeService.updateInfo(employeeDTO);
+        return Result.success();
+    }
 }
