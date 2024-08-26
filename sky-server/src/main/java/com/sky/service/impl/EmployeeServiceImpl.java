@@ -75,15 +75,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // 填充其他属性，将 DTO 转化为 entity
         employee.setStatus(StatusConstant.ENABLE);
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
 
         // 设置密码
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        // 通过 ThreadLocal 拿到当前用户的 empId
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
     }
@@ -115,9 +110,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void updateInfo(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO,employee);
-
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.updateEmployee(employee);
     }
