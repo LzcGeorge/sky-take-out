@@ -9,4 +9,25 @@
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{createTime}, #{updateTime}, #{createUser},
                 #{updateUser}, #{status})
     </insert>
+
+    <select id="pageQuery" resultType="DishVO">
+        select dish.*,category.name categoryName from dish,category
+
+        <where>
+            dish.category_id = category.id
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <!-- 这里注意 categoryId 是前端穿过来的数据，是 DishPageQueryDTO 中的数据
+                category_id 是数据库中的数据，要注意对应。
+            -->
+            <if test="categoryId != null and categoryId != ''">
+                and category_id = #{categoryId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
 </mapper>
