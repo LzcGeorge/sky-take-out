@@ -11,6 +11,7 @@ import com.sky.entity.DishFlavor;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +32,9 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+
+    @Autowired
+    private SetmealDishMapper setmealDishMapper;
 
     public void addDishWithFlavor(DishDTO dishDTO) {
         Dish dish = new Dish();
@@ -60,19 +65,24 @@ public class DishServiceImpl implements DishService {
 
     }
 
-    public void deleteBatch(List<Long> ids) {
-        // 是否存在起售中的菜品
-        for(Long id: ids) {
+     public void deleteBatch(List<Long> dishIds) {
+//         是否存在起售中的菜品
+        for(Long id: dishIds) {
             Dish dish = dishMapper.getById(id);
             if(dish.getStatus() == StatusConstant.ENABLE) {
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
         // 是否存在套餐关联
+        List<Long> setmealIds = setmealDishMapper.getIdsByDishId(dishIds);
+        if(setmealIds != null && setmealIds.size() > 0) {
+            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+        }
 
-//        List<Long> setmealIds =
         // 删除菜品表中的菜品数据
-
+        dishMapper.deleteByDishIds(dishIds);
         // 删除菜品管理的口味
+
+        dishFlavorMapper.deleteByDishIds(dishIds);
     }
 }

@@ -16,18 +16,32 @@
         <where>
             dish.category_id = category.id
             <if test="name != null and name != ''">
-                and name like concat('%',#{name},'%')
+                and dish.name like concat('%',#{name},'%')
             </if>
-            <!-- 这里注意 categoryId 是前端穿过来的数据，是 DishPageQueryDTO 中的数据
+            <!--
+                dish.name 是数据库中的，#{name} 是前端传过来的
+                if 中的也是前端传过来的数据
+
+                这里注意 categoryId 是前端穿过来的数据，是 DishPageQueryDTO 中的数据
                 category_id 是数据库中的数据，要注意对应。
             -->
             <if test="categoryId != null and categoryId != ''">
-                and category_id = #{categoryId}
+                and dish.category_id = #{categoryId}
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
+
+            <!-- status 是 Integer ，所以不能加判断：status != '' , 字符串才需要加这个判断。-->
+            <if test="status != null">
+                and dish.status = #{status}
             </if>
         </where>
         order by create_time desc
     </select>
+
+    <delete id="deleteByDishIds">
+        delete from dish
+        where id in
+        <foreach collection="dishIds" item="dishid" separator="," open="(" close=")">
+            #{dishid}
+        </foreach>
+    </delete>
 </mapper>
