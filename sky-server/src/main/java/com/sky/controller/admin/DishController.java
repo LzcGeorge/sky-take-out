@@ -3,9 +3,11 @@ package com.sky.controller.admin;
 import com.github.pagehelper.Page;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,4 +43,24 @@ public class DishController {
         return Result.success();
     }
 
+    @GetMapping("/{id}")
+    public Result<DishVO> getById(@PathVariable Long id) {
+        log.info("查询菜品,id : {}",id);
+        DishVO dishVO = dishService.getById(id);
+        return Result.success(dishVO);
+    }
+
+    @PutMapping
+    public Result updateInfo(@RequestBody DishDTO dishDTO) {
+        log.info("修改菜品信息,{}",dishDTO);
+        dishService.updateInfo(dishDTO);
+        return Result.success();
+    }
+
+    @PostMapping("/status/{status}")
+    public Result updateStatus(@PathVariable Integer status,Long id) {
+        log.info("修改菜品状态.....");
+        dishService.updateStatus(id,status);
+        return Result.success();
+    }
 }
