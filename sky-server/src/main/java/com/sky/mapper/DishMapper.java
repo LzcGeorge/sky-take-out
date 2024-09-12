@@ -2,6 +2,7 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
@@ -30,4 +31,8 @@ public interface DishMapper {
 
     @AutoFill(OperationType.UPDATE)
     void updateInfo(Dish dish);
+
+//   只查询在售的。
+    @Select("select * from dish where category_id = #{categoryId} and status = 1")
+    List<Dish> getByCategoryId(Long categoryId);
 }
