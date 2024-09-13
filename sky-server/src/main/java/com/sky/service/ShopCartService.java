@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.ShoppingCart;
 
 import java.util.List;
@@ -7,5 +8,12 @@ import java.util.List;
 public interface ShopCartService {
 
 
-    List<ShoppingCart> getShopCartList();
+
+    void add(ShoppingCartDTO shoppingCartDTO);
+
+    List<ShoppingCart> getCurrentUserShopCart();
+
+
+
+    void deleteByUserId();
 }
