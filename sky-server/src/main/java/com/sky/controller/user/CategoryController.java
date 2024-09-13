@@ -23,7 +23,7 @@ public class CategoryController {
 
     @GetMapping("/list")
     public Result<List<Category>> GetCategoryList(Integer type) {
-        List<Category> categoryList = categoryService.getListByType(1);
+        List<Category> categoryList = categoryService.getListByType(type);
 
         return Result.success(categoryList);
     }

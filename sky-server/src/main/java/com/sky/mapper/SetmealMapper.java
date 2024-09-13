@@ -1,7 +1,11 @@
 package com.sky.mapper;
 
+import com.sky.annotation.AutoFill;
 import com.sky.entity.Setmeal;
+import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
+import com.sky.vo.SetmealVO;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -18,4 +22,10 @@ public interface SetmealMapper {
             "from setmeal_dish sd left join dish d on sd.dish_id = d.id " +
             "where sd.setmeal_id = #{setmealId}")
     List<DishItemVO> getDishItemBySetmealId(Long setmealId);
+
+    @AutoFill(OperationType.INSERT)
+    void addSetmeal(Setmeal setmeal);
+
+    @Select("select * from setmeal where category_id = #{categoryId}")
+    SetmealVO getByCategoryId(Long categoryId);
 }

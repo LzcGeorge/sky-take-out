@@ -84,4 +84,22 @@ public class DishController {
         cleanCache("dish_*");
         return Result.success();
     }
+
+    @GetMapping("/list")
+    public Result<List<DishVO>> getDishWithFlavorByCategoryId(Long categoryId) {
+
+        // 先查 redis 中的缓存数据
+        String key = "dish_" + categoryId;
+        List<DishVO> dishVOList = (List<DishVO>) redisTemplate.opsForValue().get(key);
+        if(dishVOList != null && dishVOList.size() > 0) {
+            return Result.success(dishVOList);
+        }
+
+        // 查询数据库
+        dishVOList = dishService.getDishWithFlavorByCategoryId(categoryId);
+
+        // 将查到的数据，加入缓存
+        redisTemplate.opsForValue().set(key,dishVOList);
+        return Result.success(dishVOList);
+    }
 }
