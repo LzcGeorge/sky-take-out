@@ -24,6 +24,7 @@ import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -228,5 +229,51 @@ public class OrderServiceImpl implements OrderService {
          }).collect(Collectors.toList());
 
         shopCartMapper.insertBatch(shoppingCartList);
+    }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        int page = ordersPageQueryDTO.getPage();
+        int pageSize = ordersPageQueryDTO.getPageSize();
+        PageHelper.startPage(page, pageSize);
+
+        // 构造分页查询条件对象
+        Page<Orders> pages = orderMapper.pageQuery(ordersPageQueryDTO);
+
+        List<OrderVO> orderVOList = getOrderVOlist(pages);
+
+        return new PageResult(pages.getTotal(), orderVOList);
+    }
+
+    private List<OrderVO> getOrderVOlist(Page<Orders> pages) {
+        // 需要返回订单菜品信息，自定义 OrderVO 响应结果
+        List<OrderVO> orderVOList = new ArrayList<>();
+
+        List<Orders> ordersList = pages.getResult();
+        if(!CollectionUtils.isEmpty(ordersList)) {
+            for(Orders orders: ordersList) {
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(orders, orderVO);
+                String orderDishes = getOrderDishesStr(orders);
+
+                orderVO.setOrderDishes(orderDishes);
+                orderVOList.add(orderVO);
+            }
+        }
+        return orderVOList;
+    }
+
+    private String getOrderDishesStr(Orders orders) {
+        // 查询订单菜品详情信息（订单中的菜品和数量）
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+
+        // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
+        List<String> orderDishList = orderDetailList.stream().map(x -> {
+            String orderDish = x.getName() + "*" + x.getNumber() + ";";
+            return orderDish;
+        }).collect(Collectors.toList());
+
+        // 将该订单对应的所有菜品信息拼接在一起
+        return String.join("", orderDishList);
     }
 }
