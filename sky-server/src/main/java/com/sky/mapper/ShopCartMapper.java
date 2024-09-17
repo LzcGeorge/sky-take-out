@@ -8,6 +8,8 @@ import java.util.List;
 @Mapper
 public interface ShopCartMapper {
 
+    void insertBatch(List<ShoppingCart> shoppingCartList);
+
     List<ShoppingCart> list(ShoppingCart shoppingCart);
     
     @Update("update shopping_cart set number = #{number} where id = #{id}")
