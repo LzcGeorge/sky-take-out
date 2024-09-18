@@ -14,4 +14,6 @@ public interface AddressService {
     void updateInfo(AddressBook addressBook);
 
     void setAllUnDefault();
+
+    AddressBook getDefault();
 }

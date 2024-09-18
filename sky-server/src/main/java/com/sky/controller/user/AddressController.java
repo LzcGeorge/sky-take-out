@@ -44,6 +44,12 @@ public class AddressController {
         return Result.success();
     }
 
+    @GetMapping("/default")
+    public Result<AddressBook> getDefault() {
+        AddressBook addressBook = addressService.getDefault();
+        return Result.success(addressBook);
+    }
+
     @GetMapping("/{id}")
     public Result<AddressBook> getById(@PathVariable Long id) {
         AddressBook addressBook = new AddressBook();
@@ -53,4 +59,12 @@ public class AddressController {
 
         return Result.success(addressBook1);
     }
+
+    @PutMapping
+    public Result updateAddress(@RequestBody AddressBook addressBook) {
+        addressService.updateInfo(addressBook);
+        return Result.success();
+    }
+
+
 }

@@ -5,10 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersDTO;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
@@ -17,6 +14,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
@@ -214,6 +212,26 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+    /**
+     * 管理端取消订单
+     * @param ordersCancelDTO
+     */
+    public void cancelOrder(OrdersCancelDTO ordersCancelDTO) {
+        Orders db = orderMapper.getById(ordersCancelDTO.getId());
+
+        Orders order = new Orders();
+        // 查询支付状态
+        if(db.getPayStatus() == Orders.PAID) {
+            order.setPayStatus(Orders.REFUND);
+        }
+
+        order.setId(ordersCancelDTO.getId());
+        order.setStatus(Orders.CANCELLED);
+        order.setCancelReason(ordersCancelDTO.getCancelReason());
+        order.setCancelTime(LocalDateTime.now());
+        orderMapper.update(order);
+    }
+
     public void repetOrderById(Long id) {
         Orders orders = orderMapper.getById(id);
         List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
@@ -245,6 +263,7 @@ public class OrderServiceImpl implements OrderService {
         return new PageResult(pages.getTotal(), orderVOList);
     }
 
+
     private List<OrderVO> getOrderVOlist(Page<Orders> pages) {
         // 需要返回订单菜品信息，自定义 OrderVO 响应结果
         List<OrderVO> orderVOList = new ArrayList<>();
@@ -257,6 +276,7 @@ public class OrderServiceImpl implements OrderService {
                 String orderDishes = getOrderDishesStr(orders);
 
                 orderVO.setOrderDishes(orderDishes);
+                System.out.println(orderVO);
                 orderVOList.add(orderVO);
             }
         }
@@ -276,4 +296,67 @@ public class OrderServiceImpl implements OrderService {
         // 将该订单对应的所有菜品信息拼接在一起
         return String.join("", orderDishList);
     }
+
+
+
+    public void delivery(Long id) {
+        Orders order = new Orders();
+        order.setId(id);
+        order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(order);
+    }
+
+    public void confirmOrder(OrdersConfirmDTO ordersConfirmDTO) {
+        Orders order = new Orders();
+        order.setId(ordersConfirmDTO.getId());
+        order.setStatus(Orders.CONFIRMED);
+        orderMapper.update(order);
+    }
+
+    @Override
+    public OrderStatisticsVO getStatistics() {
+        Integer deliveryInProgress = orderMapper.countByStatus(Orders.DELIVERY_IN_PROGRESS);
+        Integer confirmed = orderMapper.countByStatus(Orders.CONFIRMED);
+        Integer toBeConfirmed = orderMapper.countByStatus(Orders.TO_BE_CONFIRMED);
+
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        return orderStatisticsVO;
+    }
+
+    public void complete(Long id) {
+        Orders db = orderMapper.getById(id);
+        if(db == null || db.getStatus() != Orders.DELIVERY_IN_PROGRESS) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+
+        Orders order = new Orders();
+        order.setId(id);
+        order.setStatus(Orders.COMPLETED);
+        order.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(order);
+    }
+
+    public void rejectOrder(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders db = orderMapper.getById(ordersRejectionDTO.getId());
+        if(db == null || db.getStatus() != Orders.TO_BE_CONFIRMED) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders order = new Orders();
+        // 支付状态
+        if(db.getPayStatus() == Orders.PAID) {
+            order.setPayStatus(Orders.REFUND);
+        }
+        order.setId(ordersRejectionDTO.getId());
+        order.setStatus(Orders.CANCELLED);
+        order.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+        order.setCancelTime(LocalDateTime.now());
+        orderMapper.update(order);
+    }
+
+
 }

@@ -39,4 +39,13 @@ public class AddressServiceImpl implements AddressService {
         addressBook.setIsDefault(0);
         addressMapper.updateInfo(addressBook);
     }
+
+    @Override
+    public AddressBook getDefault() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.setIsDefault(1);
+        List<AddressBook> list = addressMapper.list(addressBook);
+        return list.get(0);
+
+    }
 }

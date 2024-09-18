@@ -12,6 +12,7 @@
             <if test="sex != null"> and sex = #{sex} </if>
             <if test="isDefault != null"> and is_default = #{isDefault} </if>
             <if test="label != null"> and label = #{label} </if>
+            <if test="id != null"> and id = #{id}</if>
         </where>
     </select>
 
