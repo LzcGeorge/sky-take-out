@@ -68,5 +68,33 @@
         order by order_time desc
     </select>
 
+    <select id="countByStatusAndOrderTime" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="start1 != null">
+                and order_time &gt;= #{start1}
+            </if>
+            <if test="end1 != null">
+                and order_time &lt;= #{end1}
+            </if>
+        </where>
+    </select>
 
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name name,sum(od.number) number from order_detail od ,orders o
+        where od.order_id = o.id
+        and o.status = 5
+        <if test="start1 != null">
+            and order_time &gt;= #{start1}
+        </if>
+        <if test="end1 != null">
+            and order_time &lt;= #{end1}
+        </if>
+        group by name
+        order by number desc
+        limit 0, 10
+    </select>
 </mapper>

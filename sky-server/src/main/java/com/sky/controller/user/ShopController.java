@@ -24,9 +24,4 @@ public class ShopController {
         return Result.success(status==null? 0: status);
     }
 
-    @GetMapping("/list")
-    public Result<List<ShoppingCart>> GetShopCartList() {
-
-        return null;
-    }
 }
