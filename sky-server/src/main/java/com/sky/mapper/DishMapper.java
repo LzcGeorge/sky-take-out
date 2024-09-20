@@ -35,4 +35,7 @@ public interface DishMapper {
 //   只查询在售的。
     @Select("select * from dish where category_id = #{categoryId} and status = 1")
     List<Dish> getByCategoryId(Long categoryId);
+
+    @Select("select count(*) from dish where status = #{status}")
+    Integer countBystatus(Integer status);
 }

@@ -5,6 +5,7 @@ import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -31,4 +32,7 @@ public interface SetmealMapper {
 
     @Select("select * from setmeal where category_id = #{categoryId}")
     SetmealVO getByCategoryId(Long categoryId);
+
+    @Select("select count(*) from setmeal where status = #{status}")
+    Integer countByStatus(Integer status);
 }
