@@ -96,4 +96,27 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .discontinued(discontinued)
                 .build();
     }
+
+    public BusinessDataVO getBusinessDataByTime(LocalDateTime start1, LocalDateTime end1) {
+        Integer newUser = userMapper.countByCreateTime(start1, end1);
+        Integer validCount = orderMapper.countByStatusAndOrderTime(Orders.COMPLETED, start1, end1);
+        Integer totalCount = orderMapper.countByStatusAndOrderTime(null, start1, end1);
+        Double turnover = orderMapper.sumByStatusAndOrderTime(Orders.COMPLETED, start1, end1);
+        turnover = turnover == null ? 0 : turnover;
+
+        Double completionRate = 0.0;
+        Double unitPrice = 0.0;
+        if(totalCount != 0)
+            completionRate = validCount * 1.0 / totalCount;
+        if(validCount != 0)
+            unitPrice = turnover / validCount;
+
+        return BusinessDataVO.builder()
+                .newUsers(newUser)
+                .orderCompletionRate(completionRate)
+                .turnover(turnover)
+                .unitPrice(unitPrice)
+                .validOrderCount(validCount)
+                .build();
+    }
 }
